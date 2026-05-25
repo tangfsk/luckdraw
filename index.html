@@ -189,6 +189,43 @@
       return Math.floor(pointerPos / 60) % 6;
     }
     
+    function getRandomPrizeIndex() {
+      const rand = Math.random() * 100;
+      if (rand < 1) return 1;      // 200蚊: 1%
+      if (rand < 6) return 2;      // 100蚊: 5%
+      // 其余94%随机分配给4个选项
+      const rest = Math.random() * 4;
+      if (rest < 1) return 0;      // 謝謝參與
+      if (rest < 2) return 3;      // 50蚊
+      if (rest < 3) return 4;      // 20蚊
+      return 5;                     // 10蚊
+    }
+    
+    // 概率: 200蚊=1%, 100蚊=5%, 其余=94%
+    // 累积: 0-1%=200蚊, 1-6%=100蚊, 6-100%=其余
+    function getWeightedRandomAngle() {
+      const rand = Math.random() * 100;
+      let prizeIndex;
+      if (rand < 1) prizeIndex = 1;      // 200蚊: 1%
+      else if (rand < 6) prizeIndex = 2; // 100蚊: 5%
+      else {
+        // 其余随机选一个
+        const others = [0, 3, 4, 5]; // 謝謝參與,50蚊,20蚊,10蚊
+        prizeIndex = others[Math.floor(Math.random() * 4)];
+      }
+      
+      // 扇形prizeIndex的中心角度 = prizeIndex * 60 + 30
+      // 转到该位置需要旋转: 360 - (prizeIndex * 60 + 30) + 30 = 360 - prizeIndex * 60
+      const targetAngle = 360 - (prizeIndex * 60);
+      
+      // 加额外圈数
+      const extraSpins = 4 + Math.floor(Math.random() * 3);
+      // 加一点随机偏移避免每次停同一位置
+      const offset = Math.floor(Math.random() * 50) - 25;
+      
+      return { prizeIndex, finalRotation: currentRotation + extraSpins * 360 + targetAngle + offset };
+    }
+    
     function spinWheel() {
       if (isSpinning) return;
       
@@ -196,13 +233,8 @@
       spinBtn.textContent = '轉緊...';
       resultDiv.classList.remove('show', 'winning');
       
-      // 生成随机旋转角度 (4-6圈 + 随机30度偏移，避免停在黑线上)
-      const extraSpins = 4 + Math.floor(Math.random() * 3);
-      const randomOffset = 30 + Math.floor(Math.random() * 300); // 30-330度，避免边界
-      const finalRotation = currentRotation + extraSpins * 360 + randomOffset;
-      
-      // 根据实际旋转角度计算奖项
-      const prizeIndex = getPrizeIndex(finalRotation);
+      // 用加权随机选择奖项和对应角度
+      const { prizeIndex, finalRotation } = getWeightedRandomAngle();
       
       console.log('finalRotation:', finalRotation, 'prizeIndex:', prizeIndex, 'prize:', prizes[prizeIndex]);
       
