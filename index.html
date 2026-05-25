@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>幸運抽獎</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
+      overflow: hidden;
+    }
+
+    h1 {
+      color: #ffd700;
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      letter-spacing: 3px;
+    }
+
+    .wheel-container {
+      position: relative;
+      width: 380px;
+      height: 380px;
+    }
+
+    .wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      position: relative;
+      transition: transform 4.5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+      box-shadow: 
+        0 0 30px rgba(255, 215, 0, 0.3),
+        inset 0 0 50px rgba(0, 0, 0, 0.3);
+    }
+
+    .wheel-segment {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      left: 50%;
+      top: 50%;
+      transform-origin: 0% 0%;
+      clip-path: polygon(0 0, 100% 0, 100% 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .wheel-segment:nth-child(1) {
+      transform: rotate(0deg) skewY(-30deg);
+      background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+    }
+
+    .wheel-segment:nth-child(2) {
+      transform: rotate(60deg) skewY(-30deg);
+      background: linear-gradient(135deg, #4ecdc4, #3db9b0);
+    }
+
+    .wheel-segment:nth-child(3) {
+      transform: rotate(120deg) skewY(-30deg);
+      background: linear-gradient(135deg, #ffd93d, #f5c800);
+    }
+
+    .wheel-segment:nth-child(4) {
+      transform: rotate(180deg) skewY(-30deg);
+      background: linear-gradient(135deg, #6bcb77, #5ab868);
+    }
+
+    .wheel-segment:nth-child(5) {
+      transform: rotate(240deg) skewY(-30deg);
+      background: linear-gradient(135deg, #9b59b6, #8e44ad);
+    }
+
+    .wheel-segment:nth-child(6) {
+      transform: rotate(300deg) skewY(-30deg);
+      background: linear-gradient(135deg, #3498db, #2980b9);
+    }
+
+    .segment-text {
+      position: absolute;
+      transform: skewY(30deg) rotate(30deg);
+      color: white;
+      font-weight: bold;
+      font-size: 1.1rem;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+      white-space: nowrap;
+      left: 45%;
+      top: 25%;
+    }
+
+    .center-circle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(145deg, #ffd700, #ffaa00);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #1a1a2e;
+      cursor: pointer;
+      box-shadow: 
+        0 5px 20px rgba(0, 0, 0, 0.4),
+        inset 0 -3px 10px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s, box-shadow 0.2s;
+      z-index: 10;
+    }
+
+    .center-circle:hover {
+      transform: translate(-50%, -50%) scale(1.05);
+      box-shadow: 
+        0 8px 30px rgba(255, 215, 0, 0.5),
+        inset 0 -3px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .center-circle:active {
+      transform: translate(-50%, -50%) scale(0.95);
+    }
+
+    .pointer {
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 40px solid #ff4444;
+      filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.4));
+      z-index: 20;
+    }
+
+    .result {
+      margin-top: 30px;
+      padding: 20px 40px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      color: white;
+      font-size: 1.5rem;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .result.show {
+      opacity: 1;
+    }
+
+    .result.winning {
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.3));
+      border-color: rgba(255, 215, 0, 0.5);
+      animation: pulse 0.5s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .light-rays {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 450px;
+      height: 450px;
+      background: conic-gradient(from 0deg, transparent 0deg, rgba(255, 215, 0, 0.1) 10deg, transparent 20deg);
+      border-radius: 50%;
+      animation: rotate 3s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes rotate {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .sparkle::before,
+    .sparkle::after {
+      content: '✨';
+      position: absolute;
+      font-size: 1.5rem;
+      animation: sparkle 1.5s ease-in-out infinite;
+    }
+
+    .sparkle::before {
+      top: 10%;
+      left: 20%;
+      animation-delay: 0s;
+    }
+
+    .sparkle::after {
+      top: 60%;
+      right: 15%;
+      animation-delay: 0.75s;
+    }
+
+    @keyframes sparkle {
+      0%, 100% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="sparkle"></div>
+  <div class="light-rays"></div>
+  
+  <h1>🎰 幸運大抽獎 🎰</h1>
+  
+  <div class="wheel-container">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel">
+      <div class="wheel-segment">
+        <span class="segment-text">謝謝參與</span>
+      </div>
+      <div class="wheel-segment">
+        <span class="segment-text">10 蚊</span>
+      </div>
+      <div class="wheel-segment">
+        <span class="segment-text">20 蚊</span>
+      </div>
+      <div class="wheel-segment">
+        <span class="segment-text">50 蚊</span>
+      </div>
+      <div class="wheel-segment">
+        <span class="segment-text">100 蚊</span>
+      </div>
+      <div class="wheel-segment">
+        <span class="segment-text">200 蚊</span>
+      </div>
+    </div>
+    <div class="center-circle" id="spinBtn">開始</div>
+  </div>
+  
+  <div class="result" id="result"></div>
+
+  <script>
+    const prizes = ['謝謝參與', '10 蚊', '20 蚊', '50 蚊', '100 蚊', '200 蚊'];
+    const segmentAngle = 360 / prizes.length;
+    
+    // 指针指向上方(0度)，我们需要调整让每个奖项对应的角度
+    // 0度位置是顶部指针，我们需要把奖项从顶部顺时针排列
+    // 第一个奖项应该在 300度位置（指针左侧），最后一个在60度（指针右侧）
+    
+    const wheel = document.getElementById('wheel');
+    const spinBtn = document.getElementById('spinBtn');
+    const resultDiv = document.getElementById('result');
+    
+    let isSpinning = false;
+    let currentRotation = 0;
+    
+    function getRandomPrize() {
+      // 随机选择奖项，增加谢谢参与的概率
+      const random = Math.random();
+      if (random < 0.35) {
+        return 0; // 35% 谢谢参与
+      } else if (random < 0.5) {
+        return 1; // 15% 10蚊
+      } else if (random < 0.62) {
+        return 2; // 12% 20蚊
+      } else if (random < 0.72) {
+        return 3; // 10% 50蚊
+      } else if (random < 0.82) {
+        return 4; // 10% 100蚊
+      } else {
+        return 5; // 18% 200蚊
+      }
+    }
+    
+    function spinWheel() {
+      if (isSpinning) return;
+      
+      isSpinning = true;
+      spinBtn.textContent = '轉緊...';
+      resultDiv.classList.remove('show', 'winning');
+      
+      const prizeIndex = getRandomPrize();
+      
+      // 计算目标角度
+      // 指针在顶部(0度)，我们需要旋转使对应奖项到达顶部
+      // 每个奖项占60度，奖项0在300度位置，奖项1在0度...以此类推
+      // 为了让奖项到达顶部，需要反向旋转
+      const prizeAngle = 300 - (prizeIndex * segmentAngle);
+      
+      // 额外旋转4-6圈
+      const extraSpins = 4 + Math.floor(Math.random() * 3);
+      const targetRotation = currentRotation + (extraSpins * 360) + prizeAngle;
+      
+      // 调整旋转值确保顺时针旋转
+      const adjustedTarget = Math.ceil((targetRotation - currentRotation) / segmentAngle) * segmentAngle + currentRotation;
+      
+      // 应用旋转
+      wheel.style.transform = `rotate(${adjustedTarget}deg)`;
+      currentRotation = adjustedTarget;
+      
+      // 4.5秒后显示结果
+      setTimeout(() => {
+        const prize = prizes[prizeIndex];
+        resultDiv.textContent = prize === '謝謝參與' 
+          ? '😢 ' + prize 
+          : '🎉 你獲得 ' + prize + '!';
+        resultDiv.classList.add('show');
+        
+        if (prize !== '謝謝參與') {
+          resultDiv.classList.add('winning');
+        }
+        
+        isSpinning = false;
+        spinBtn.textContent = '再轉';
+      }, 4500);
+    }
+    
+    spinBtn.addEventListener('click', spinWheel);
+    
+    // 键盘空格键也可以触发
+    document.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && !isSpinning) {
+        e.preventDefault();
+        spinWheel();
+      }
+    });
+  </script>
+</body>
+</html>
