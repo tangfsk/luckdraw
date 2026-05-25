@@ -187,9 +187,9 @@
       
       const prizeIndex = getRandomPrize();
       
-      // 奖项i的起始角度是 i*60
-      // 要让这个起始角度转到顶部(0°)，需要顺时针旋转: 360 - i*60
-      const targetAngle = 360 - (prizeIndex * 60);
+      // 奖项i的中心角度 = i*60 + 30
+      // 让中心对准顶部(0°)，需要旋转: 360 - (i*60 + 30) = 330 - i*60
+      const targetAngle = 330 - (prizeIndex * 60);
       
       const extraSpins = 4;
       const finalRotation = currentRotation + extraSpins * 360 + targetAngle;
