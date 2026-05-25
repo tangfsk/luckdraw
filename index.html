@@ -282,22 +282,12 @@
     let isSpinning = false;
     let currentRotation = 0;
     
-    function getRandomPrize() {
-      // 随机选择奖项，增加谢谢参与的概率
-      const random = Math.random();
-      if (random < 0.35) {
-        return 0; // 35% 谢谢参与
-      } else if (random < 0.5) {
-        return 1; // 15% 10蚊
-      } else if (random < 0.62) {
-        return 2; // 12% 20蚊
-      } else if (random < 0.72) {
-        return 3; // 10% 50蚊
-      } else if (random < 0.82) {
-        return 4; // 10% 100蚊
-      } else {
-        return 5; // 18% 200蚊
-      }
+    // 奖项在转盘上是顺时针排列: 200, 100, 50, 20, 10, 謝謝參與
+    // 指针在顶部，读取时顺时针方向
+    function getPrizeFromRotation(rotation) {
+      const normalizedRotation = rotation % 360;
+      // 指针顺时针移动 rotation 度，所以指向 rotation 度位置
+      return Math.floor(normalizedRotation / segmentAngle) % prizes.length;
     }
     
     function spinWheel() {
@@ -307,28 +297,27 @@
       spinBtn.textContent = '轉緊...';
       resultDiv.classList.remove('show', 'winning');
       
+      // 随机选择奖项
       const prizeIndex = getRandomPrize();
       
-      // 计算目标角度
-      // 指针在顶部(0度)，我们需要旋转使对应奖项到达顶部
-      // 每个奖项占60度，奖项0在300度位置，奖项1在0度...以此类推
-      // 为了让奖项到达顶部，需要反向旋转
-      const prizeAngle = 300 - (prizeIndex * segmentAngle);
+      // 计算要旋转多少度让对应奖项到达顶部(0度)
+      // 奖项在转盘上是逆时针排列的，所以要顺时针旋转让奖项到达顶部
+      // 奖项0在角度0的位置，要让它到顶部需要旋转0度
+      // 奖项1在角度60的位置，要让它到顶部需要逆时针转60度，或顺时针转300度
+      const targetAngle = 360 - (prizeIndex * segmentAngle);
       
-      // 额外旋转4-6圈
+      // 额外旋转4-6圈，再加上让目标奖项转到顶部的角度
       const extraSpins = 4 + Math.floor(Math.random() * 3);
-      const targetRotation = currentRotation + (extraSpins * 360) + prizeAngle;
+      const finalRotation = currentRotation + extraSpins * 360 + (360 - prizeIndex * segmentAngle);
       
-      // 调整旋转值确保顺时针旋转
-      const adjustedTarget = Math.ceil((targetRotation - currentRotation) / segmentAngle) * segmentAngle + currentRotation;
-      
-      // 应用旋转
-      wheel.style.transform = `rotate(${adjustedTarget}deg)`;
-      currentRotation = adjustedTarget;
+      wheel.style.transform = `rotate(${finalRotation}deg)`;
+      currentRotation = finalRotation;
       
       // 4.5秒后显示结果
       setTimeout(() => {
-        const prize = prizes[prizeIndex];
+        // 根据最终旋转角度计算实际奖项
+        const actualPrizeIndex = getPrizeFromRotation(currentRotation);
+        const prize = prizes[actualPrizeIndex];
         resultDiv.textContent = prize === '謝謝參與' 
           ? '😢 ' + prize 
           : '🎉 你獲得 ' + prize + '!';
