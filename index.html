@@ -216,7 +216,10 @@
       
       // 扇形i的起始角度 = i*60
       // 转到该位置需要: i*60 度
-      const targetAngle = prizeIndex * 60;
+      // 加一个小偏移(±15度)避免停在黑线上，让指针停在扇形中间
+      const baseAngle = prizeIndex * 60;
+      const offset = Math.floor(Math.random() * 20) - 10; // -10到+10度
+      const targetAngle = baseAngle + offset;
       
       // 加额外圈数
       const extraSpins = 4 + Math.floor(Math.random() * 3);
