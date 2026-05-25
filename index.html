@@ -194,15 +194,17 @@
       spinBtn.textContent = '轉緊...';
       resultDiv.classList.remove('show', 'winning');
       
-      // 随机生成最终旋转角度（4-6圈 + 随机角度）
+      // 直接設一個目標角度 (0-359)
+      const targetDegrees = Math.floor(Math.random() * 360);
+      
+      // 用目標角度計獎品 (呢個肯定match！)
+      const prizeIndex = Math.floor(targetDegrees / 60);
+      
+      // 計算最終旋轉: 4-6圈 + 目標角度
       const extraSpins = 4 + Math.floor(Math.random() * 3);
-      const randomOffset = Math.floor(Math.random() * 360);
-      const finalRotation = currentRotation + extraSpins * 360 + randomOffset;
+      const finalRotation = currentRotation + extraSpins * 360 + targetDegrees;
       
-      // 從旋轉角度計算實際既獎品
-      const prizeIndex = getPrizeFromRotation(finalRotation);
-      
-      console.log('finalRotation:', finalRotation, 'normalized:', finalRotation % 360, 'prizeIndex:', prizeIndex);
+      console.log('targetDegrees:', targetDegrees, 'prizeIndex:', prizeIndex, 'prize:', prizes[prizeIndex]);
       
       wheel.style.transform = `rotate(${finalRotation}deg)`;
       currentRotation = finalRotation;
