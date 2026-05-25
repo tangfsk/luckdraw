@@ -26,8 +26,8 @@
 
     .wheel-container {
       position: relative;
-      width: 350px;
-      height: 350px;
+      width: 360px;
+      height: 360px;
     }
 
     .wheel {
@@ -36,28 +36,16 @@
       border-radius: 50%;
       position: relative;
       transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), inset 0 0 20px rgba(0,0,0,0.3);
       overflow: hidden;
+      background: white;
     }
 
-    /* SVG扇形 */
-    .wheel svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .segment {
-      stroke: #1a1a2e;
-      stroke-width: 2;
-    }
-
-    .segment-text {
-      fill: white;
-      font-weight: bold;
-      font-size: 14px;
-      text-anchor: middle;
-      dominant-baseline: middle;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+    /* 用Canvas畫扇形 */
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
     }
 
     .center-circle {
@@ -78,6 +66,10 @@
       cursor: pointer;
       box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
       z-index: 10;
+    }
+
+    .center-circle:hover {
+      transform: translate(-50%, -50%) scale(1.05);
     }
 
     .pointer {
@@ -125,32 +117,7 @@
   <div class="wheel-container">
     <div class="pointer"></div>
     <div class="wheel" id="wheel">
-      <svg viewBox="0 0 350 350">
-        <!-- 扇形: 从0度顺时针 -->
-        <!-- 0-60度: 謝謝參與 -->
-        <path d="M175,175 L175,10 A165,165 0 0,1 317.88,92.5 Z" fill="#ff6b6b" class="segment"/>
-        <text x="235" y="80" class="segment-text" transform="rotate(30, 235, 80)">謝謝參與</text>
-        
-        <!-- 60-120度: 200蚊 -->
-        <path d="M317.88,92.5 L175,10 A165,165 0 0,1 317.88,257.5 Z" fill="#4ecdc4" class="segment"/>
-        <text x="290" y="140" class="segment-text" transform="rotate(90, 290, 140)">200 蚊</text>
-        
-        <!-- 120-180度: 100蚊 -->
-        <path d="M317.88,257.5 L175,340 A165,165 0 0,1 175,10 Z" fill="#ffd93d" class="segment"/>
-        <text x="235" y="270" class="segment-text" transform="rotate(150, 235, 270)">100 蚊</text>
-        
-        <!-- 180-240度: 50蚊 -->
-        <path d="M175,340 L32.12,257.5 A165,165 0 0,1 317.88,257.5 Z" fill="#6bcb77" class="segment"/>
-        <text x="115" y="270" class="segment-text" transform="rotate(210, 115, 270)">50 蚊</text>
-        
-        <!-- 240-300度: 20蚊 -->
-        <path d="M32.12,257.5 L32.12,92.5 A165,165 0 0,1 175,340 Z" fill="#9b59b6" class="segment"/>
-        <text x="60" y="140" class="segment-text" transform="rotate(270, 60, 140)">20 蚊</text>
-        
-        <!-- 300-360度: 10蚊 -->
-        <path d="M32.12,92.5 L175,10 A165,165 0 0,1 32.12,257.5 Z" fill="#3498db" class="segment"/>
-        <text x="115" y="80" class="segment-text" transform="rotate(330, 115, 80)">10 蚊</text>
-      </svg>
+      <canvas id="canvas" width="360" height="360"></canvas>
     </div>
     <div class="center-circle" id="spinBtn">開始</div>
   </div>
@@ -159,13 +126,55 @@
 
   <script>
     // 奖项从顶部顺时针: 
-    // index 0: 謝謝參與 (0-60°, 红色)
-    // index 1: 200蚊 (60-120°, 青色)
-    // index 2: 100蚊 (120-180°, 黄色)
-    // index 3: 50蚊 (180-240°, 绿色)
-    // index 4: 20蚊 (240-300°, 紫色)
-    // index 5: 10蚊 (300-360°, 蓝色)
     const prizes = ['謝謝參與', '200 蚊', '100 蚊', '50 蚊', '20 蚊', '10 蚊'];
+    const colors = ['#ff6b6b', '#4ecdc4', '#ffd93d', '#6bcb77', '#9b59b6', '#3498db'];
+    
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const centerX = 180;
+    const centerY = 180;
+    const radius = 170;
+    
+    // 畫扇形同文字
+    function drawWheel() {
+      ctx.clearRect(0, 0, 360, 360);
+      
+      for (let i = 0; i < 6; i++) {
+        const startAngle = (i * 60 - 90) * Math.PI / 180; // 從頂部開始
+        const endAngle = ((i + 1) * 60 - 90) * Math.PI / 180;
+        
+        // 畫扇形
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = colors[i];
+        ctx.fill();
+        ctx.strokeStyle = '#1a1a2e';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // 畫文字
+        const textAngle = startAngle + (endAngle - startAngle) / 2;
+        const textRadius = radius * 0.65;
+        const textX = centerX + textRadius * Math.cos(textAngle);
+        const textY = centerY + textRadius * Math.sin(textAngle);
+        
+        ctx.save();
+        ctx.translate(textX, textY);
+        ctx.rotate(textAngle + Math.PI / 2); // 文字方向
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 16px Microsoft JhengHei';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 3;
+        ctx.fillText(prizes[i], 0, 0);
+        ctx.restore();
+      }
+    }
+    
+    drawWheel();
     
     const wheel = document.getElementById('wheel');
     const spinBtn = document.getElementById('spinBtn');
@@ -173,19 +182,6 @@
     
     let isSpinning = false;
     let currentRotation = 0;
-    
-    function getRandomPrize() {
-      return Math.floor(Math.random() * 6);
-    }
-    
-    function getPrizeFromRotation(rotation) {
-      // 轉盤順時針轉R度，指針位置 = (360 - R) mod 360
-      const normalized = rotation % 360;
-      const pointerAngle = (360 - normalized) % 360;
-      // 指針角度除60就係扇形index
-      const segmentIndex = Math.floor(pointerAngle / 60) % 6;
-      return segmentIndex;
-    }
     
     function spinWheel() {
       if (isSpinning) return;
@@ -197,7 +193,7 @@
       // 直接設一個目標角度 (0-359)
       const targetDegrees = Math.floor(Math.random() * 360);
       
-      // 用目標角度計獎品 (呢個肯定match！)
+      // 用目標角度計獎品
       const prizeIndex = Math.floor(targetDegrees / 60);
       
       // 計算最終旋轉: 4-6圈 + 目標角度
