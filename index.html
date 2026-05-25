@@ -215,15 +215,13 @@
       }
       
       // 扇形prizeIndex的中心角度 = prizeIndex * 60 + 30
-      // 转到该位置需要旋转: 360 - (prizeIndex * 60 + 30) + 30 = 360 - prizeIndex * 60
+      // 转到该位置需要旋转: 360 - prizeIndex * 60
       const targetAngle = 360 - (prizeIndex * 60);
       
       // 加额外圈数
       const extraSpins = 4 + Math.floor(Math.random() * 3);
-      // 加一点随机偏移避免每次停同一位置
-      const offset = Math.floor(Math.random() * 50) - 25;
       
-      return { prizeIndex, finalRotation: currentRotation + extraSpins * 360 + targetAngle + offset };
+      return { prizeIndex, finalRotation: currentRotation + extraSpins * 360 + targetAngle };
     }
     
     function spinWheel() {
@@ -241,8 +239,11 @@
       wheel.style.transform = `rotate(${finalRotation}deg)`;
       currentRotation = finalRotation;
       
+      // 用实际旋转角度验证奖品
+      const verifiedPrizeIndex = getPrizeIndex(finalRotation);
+      
       setTimeout(() => {
-        const prize = prizes[prizeIndex];
+        const prize = prizes[verifiedPrizeIndex];
         resultDiv.textContent = prize === '謝謝參與' 
           ? '😢 ' + prize 
           : '🎉 你獲得 ' + prize + '!';
