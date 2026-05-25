@@ -214,9 +214,9 @@
         prizeIndex = others[Math.floor(Math.random() * 4)];
       }
       
-      // 扇形prizeIndex的中心角度 = prizeIndex * 60 + 30
-      // 转到该位置需要旋转: 360 - prizeIndex * 60
-      const targetAngle = 360 - (prizeIndex * 60);
+      // 扇形i的起始角度 = i*60
+      // 转到该位置需要: i*60 度
+      const targetAngle = prizeIndex * 60;
       
       // 加额外圈数
       const extraSpins = 4 + Math.floor(Math.random() * 3);
