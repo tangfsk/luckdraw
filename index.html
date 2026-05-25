@@ -41,7 +41,6 @@
       background: white;
     }
 
-    /* 用Canvas畫扇形 */
     canvas {
       position: absolute;
       top: 0;
@@ -125,7 +124,13 @@
   <div class="result" id="result"></div>
 
   <script>
-    // 奖项从顶部顺时针: 
+    // 奖项: 从顶部顺时针
+    // 扇形0: 中心300° = 謝謝參與
+    // 扇形1: 中心0°/360° = 200蚊
+    // 扇形2: 中心60° = 100蚊
+    // 扇形3: 中心120° = 50蚊
+    // 扇形4: 中心180° = 20蚊
+    // 扇形5: 中心240° = 10蚊
     const prizes = ['謝謝參與', '200 蚊', '100 蚊', '50 蚊', '20 蚊', '10 蚊'];
     const colors = ['#ff6b6b', '#4ecdc4', '#ffd93d', '#6bcb77', '#9b59b6', '#3498db'];
     
@@ -135,15 +140,15 @@
     const centerY = 180;
     const radius = 170;
     
-    // 畫扇形同文字
     function drawWheel() {
       ctx.clearRect(0, 0, 360, 360);
       
       for (let i = 0; i < 6; i++) {
-        const startAngle = (i * 60 - 90) * Math.PI / 180; // 從頂部開始
-        const endAngle = ((i + 1) * 60 - 90) * Math.PI / 180;
+        // 扇形i的中心角度 = i*60度 (从顶部顺时针)
+        const centerAngle = i * 60;
+        const startAngle = ((i * 60) - 30 - 90) * Math.PI / 180;
+        const endAngle = ((i * 60) + 30 - 90) * Math.PI / 180;
         
-        // 畫扇形
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.arc(centerX, centerY, radius, startAngle, endAngle);
@@ -154,15 +159,15 @@
         ctx.lineWidth = 2;
         ctx.stroke();
         
-        // 畫文字
-        const textAngle = startAngle + (endAngle - startAngle) / 2;
+        // 文字
+        const textAngle = (centerAngle - 90) * Math.PI / 180;
         const textRadius = radius * 0.65;
         const textX = centerX + textRadius * Math.cos(textAngle);
         const textY = centerY + textRadius * Math.sin(textAngle);
         
         ctx.save();
         ctx.translate(textX, textY);
-        ctx.rotate(textAngle + Math.PI / 2); // 文字方向
+        ctx.rotate(textAngle + Math.PI / 2);
         ctx.fillStyle = 'white';
         ctx.font = 'bold 16px Microsoft JhengHei';
         ctx.textAlign = 'center';
@@ -190,17 +195,18 @@
       spinBtn.textContent = '轉緊...';
       resultDiv.classList.remove('show', 'winning');
       
-      // 直接設一個目標角度 (0-359)
-      const targetDegrees = Math.floor(Math.random() * 360);
+      // 随机选择奖项
+      const prizeIndex = Math.floor(Math.random() * 6);
       
-      // 用目標角度計獎品 - 因為wheel順時針轉，指針位置等於反方向
-      const prizeIndex = Math.floor((360 - targetDegrees) / 60) % 6;
+      // 扇形i的中心在 i*60 度
+      // 要让这个中心转到顶部(0度)，需要顺时针旋转: 360 - i*60
+      const targetAngle = (360 - prizeIndex * 60) % 360;
       
-      // 計算最終旋轉: 4-6圈 + 目標角度
+      // 额外转4-6圈
       const extraSpins = 4 + Math.floor(Math.random() * 3);
-      const finalRotation = currentRotation + extraSpins * 360 + targetDegrees;
+      const finalRotation = currentRotation + extraSpins * 360 + targetAngle;
       
-      console.log('targetDegrees:', targetDegrees, 'prizeIndex:', prizeIndex, 'prize:', prizes[prizeIndex]);
+      console.log('prizeIndex:', prizeIndex, 'targetAngle:', targetAngle);
       
       wheel.style.transform = `rotate(${finalRotation}deg)`;
       currentRotation = finalRotation;
