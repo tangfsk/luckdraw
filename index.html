@@ -179,12 +179,11 @@
     }
     
     function getPrizeFromRotation(rotation) {
-      // 归一化旋转角度到0-360
+      // 轉盤順時針轉R度，指針位置 = (360 - R) mod 360
       const normalized = rotation % 360;
-      // 扇形i的中心是 i*60 + 30 度
-      // 指针在顶部(0度)，顺时针移动，所以指向 normalized 度
-      // 找到最接近的角度对应的扇形
-      const segmentIndex = Math.floor((normalized + 30) / 60) % 6;
+      const pointerAngle = (360 - normalized) % 360;
+      // 指針角度除60就係扇形index
+      const segmentIndex = Math.floor(pointerAngle / 60) % 6;
       return segmentIndex;
     }
     
