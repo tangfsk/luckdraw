@@ -282,6 +282,16 @@
     let isSpinning = false;
     let currentRotation = 0;
     
+    function getRandomPrize() {
+      const random = Math.random();
+      if (random < 0.35) return 0;   // 35% 謝謝參與
+      if (random < 0.5) return 1;   // 15% 10蚊
+      if (random < 0.62) return 2;  // 12% 20蚊
+      if (random < 0.72) return 3;   // 10% 50蚊
+      if (random < 0.82) return 4;   // 10% 100蚊
+      return 5;                      // 18% 200蚊
+    }
+    
     // 奖项在转盘上是顺时针排列: 200, 100, 50, 20, 10, 謝謝參與
     // 指针在顶部，读取时顺时针方向
     function getPrizeFromRotation(rotation) {
