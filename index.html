@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>幸運抽獎</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       min-height: 100vh;
@@ -44,13 +40,12 @@
       overflow: hidden;
     }
 
-    /* 用conic-gradient直接畫扇形，無縫隙 */
     .wheel-bg {
       width: 100%;
       height: 100%;
       border-radius: 50%;
+      /* 從0度開始，每格60度 */
       background: conic-gradient(
-        from -30deg,
         #ff6b6b 0deg 60deg,
         #4ecdc4 60deg 120deg,
         #ffd93d 120deg 180deg,
@@ -60,7 +55,6 @@
       );
     }
 
-    /* 文字層 */
     .wheel-text {
       position: absolute;
       width: 100%;
@@ -81,13 +75,12 @@
       white-space: nowrap;
     }
 
-    /* 文字位置 - 順時針從頂部 */
-    .wheel-text span:nth-child(1) { transform: translateX(-50%) rotate(30deg); }  /* 謝謝參與 */
-    .wheel-text span:nth-child(2) { transform: translateX(-50%) rotate(90deg); }  /* 200蚊 */
-    .wheel-text span:nth-child(3) { transform: translateX(-50%) rotate(150deg); }  /* 100蚊 */
-    .wheel-text span:nth-child(4) { transform: translateX(-50%) rotate(210deg); } /* 50蚊 */
-    .wheel-text span:nth-child(5) { transform: translateX(-50%) rotate(270deg); } /* 20蚊 */
-    .wheel-text span:nth-child(6) { transform: translateX(-50%) rotate(330deg); } /* 10蚊 */
+    .wheel-text span:nth-child(1) { transform: translateX(-50%) rotate(30deg); }
+    .wheel-text span:nth-child(2) { transform: translateX(-50%) rotate(90deg); }
+    .wheel-text span:nth-child(3) { transform: translateX(-50%) rotate(150deg); }
+    .wheel-text span:nth-child(4) { transform: translateX(-50%) rotate(210deg); }
+    .wheel-text span:nth-child(5) { transform: translateX(-50%) rotate(270deg); }
+    .wheel-text span:nth-child(6) { transform: translateX(-50%) rotate(330deg); }
 
     .center-circle {
       position: absolute;
@@ -107,14 +100,6 @@
       cursor: pointer;
       box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
       z-index: 10;
-    }
-
-    .center-circle:hover {
-      transform: translate(-50%, -50%) scale(1.05);
-    }
-
-    .center-circle:active {
-      transform: translate(-50%, -50%) scale(0.95);
     }
 
     .pointer {
@@ -148,19 +133,11 @@
       transition: opacity 0.3s;
     }
 
-    .result.show {
-      opacity: 1;
-    }
+    .result.show { opacity: 1; }
 
     .result.winning {
       background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.3));
       border-color: rgba(255, 215, 0, 0.5);
-      animation: pulse 0.5s ease-in-out;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
     }
   </style>
 </head>
@@ -172,6 +149,7 @@
     <div class="wheel" id="wheel">
       <div class="wheel-bg"></div>
       <div class="wheel-text">
+        <!-- 從頂部(0度)順時針: 0-60=謝謝參與, 60-120=200蚊... -->
         <span>謝謝參與</span>
         <span>200 蚊</span>
         <span>100 蚊</span>
@@ -186,7 +164,7 @@
   <div class="result" id="result"></div>
 
   <script>
-    // 奖项顺序（从顶部顺时针）: 索引0在顶部
+    // 奖项从顶部顺时针: 索引0在0-60度(顶部), 索引1在60-120度...
     const prizes = ['謝謝參與', '200 蚊', '100 蚊', '50 蚊', '20 蚊', '10 蚊'];
     const segmentAngle = 60;
     
@@ -214,22 +192,18 @@
       spinBtn.textContent = '轉緊...';
       resultDiv.classList.remove('show', 'winning');
       
-      // 随机选择奖项
       const prizeIndex = getRandomPrize();
       
-      // 顺时针旋转: 让目标奖项到达顶部(0度)
-      // 索引i的奖项在角度i*60的位置，需要旋转到0度
-      // 顺时针旋转 (360 - i*60) 度
+      // 让奖项到达顶部: 顺时针旋转使索引i到达0度
+      // 索引i在角度i*60，需要旋转-(i*60)度或360-(i*60)度
       const targetAngle = 360 - (prizeIndex * segmentAngle);
       
-      // 额外旋转4-6圈
       const extraSpins = 4 + Math.floor(Math.random() * 3);
       const finalRotation = currentRotation + extraSpins * 360 + targetAngle;
       
       wheel.style.transform = `rotate(${finalRotation}deg)`;
       currentRotation = finalRotation;
       
-      // 4秒后显示结果
       setTimeout(() => {
         const prize = prizes[prizeIndex];
         resultDiv.textContent = prize === '謝謝參與' 
