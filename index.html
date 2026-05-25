@@ -44,7 +44,7 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
-      /* 从0度顺时针: 0-60=紅, 60-120=青, 120-180=黃, 180-240=綠, 240-300=紫, 300-360=藍 */
+      /* 0-60°:紅, 60-120°:青, 120-180°:黃, 180-240°:綠, 240-300°:紫, 300-360°:藍 */
       background: conic-gradient(
         #ff6b6b 0deg 60deg,
         #4ecdc4 60deg 120deg,
@@ -75,13 +75,12 @@
       white-space: nowrap;
     }
 
-    /* 文字在每个扇形的中心 */
-    .wheel-text span:nth-child(1) { transform: translateX(-50%) rotate(30deg); }  /* 0-60度中心 */
-    .wheel-text span:nth-child(2) { transform: translateX(-50%) rotate(90deg); }   /* 60-120中心 */
-    .wheel-text span:nth-child(3) { transform: translateX(-50%) rotate(150deg); }  /* 120-180中心 */
-    .wheel-text span:nth-child(4) { transform: translateX(-50%) rotate(210deg); } /* 180-240中心 */
-    .wheel-text span:nth-child(5) { transform: translateX(-50%) rotate(270deg); } /* 240-300中心 */
-    .wheel-text span:nth-child(6) { transform: translateX(-50%) rotate(330deg); } /* 300-360中心 */
+    .wheel-text span:nth-child(1) { transform: translateX(-50%) rotate(30deg); }
+    .wheel-text span:nth-child(2) { transform: translateX(-50%) rotate(90deg); }
+    .wheel-text span:nth-child(3) { transform: translateX(-50%) rotate(150deg); }
+    .wheel-text span:nth-child(4) { transform: translateX(-50%) rotate(210deg); }
+    .wheel-text span:nth-child(5) { transform: translateX(-50%) rotate(270deg); }
+    .wheel-text span:nth-child(6) { transform: translateX(-50%) rotate(330deg); }
 
     .center-circle {
       position: absolute;
@@ -150,12 +149,6 @@
     <div class="wheel" id="wheel">
       <div class="wheel-bg"></div>
       <div class="wheel-text">
-        <!-- 扇形0(0-60度,中心30度):謝謝參與 -->
-        <!-- 扇形1(60-120,中心90度):200蚊 -->
-        <!-- 扇形2(120-180,中心150度):100蚊 -->
-        <!-- 扇形3(180-240,中心210度):50蚊 -->
-        <!-- 扇形4(240-300,中心270度):20蚊 -->
-        <!-- 扇形5(300-360,中心330度):10蚊 -->
         <span>謝謝參與</span>
         <span>200 蚊</span>
         <span>100 蚊</span>
@@ -170,9 +163,14 @@
   <div class="result" id="result"></div>
 
   <script>
-    // 扇形从顶部顺时针: 0=謝謝參與(0-60度), 1=200蚊(60-120), 2=100蚊(120-180)...
+    // 奖项在转盘上的位置（顺时针从顶部0°开始）:
+    // prizes[0] = 謝謝參與 在 0-60° (红色)
+    // prizes[1] = 200蚊 在 60-120° (青色)
+    // prizes[2] = 100蚊 在 120-180° (黄色)
+    // prizes[3] = 50蚊 在 180-240° (绿色)
+    // prizes[4] = 20蚊 在 240-300° (紫色)
+    // prizes[5] = 10蚊 在 300-360° (蓝色)
     const prizes = ['謝謝參與', '200 蚊', '100 蚊', '50 蚊', '20 蚊', '10 蚊'];
-    const segmentAngle = 60;
     
     const wheel = document.getElementById('wheel');
     const spinBtn = document.getElementById('spinBtn');
@@ -182,13 +180,7 @@
     let currentRotation = 0;
     
     function getRandomPrize() {
-      const random = Math.random();
-      if (random < 0.35) return 0;
-      if (random < 0.50) return 1;
-      if (random < 0.62) return 2;
-      if (random < 0.72) return 3;
-      if (random < 0.82) return 4;
-      return 5;
+      return Math.floor(Math.random() * 6);
     }
     
     function spinWheel() {
@@ -200,13 +192,15 @@
       
       const prizeIndex = getRandomPrize();
       
-      // 顺时针旋转: 扇形i的中心在i*60+30度
-      // 要让扇形i到达顶部(0度)，需要顺时针旋转: 360 - (i*60 + 30) = 330 - i*60
-      // 即: 330, 270, 210, 150, 90, 30 度 for i=0,1,2,3,4,5
-      const targetAngle = 330 - (prizeIndex * segmentAngle);
+      // 奖项i的起始角度是 i*60
+      // 要让这个起始角度转到顶部(0°)，需要顺时针旋转: 360 - i*60
+      // 例如: prizes[2]=100蚊 起始120°，需要旋转 360-120=240°
+      const targetAngle = 360 - (prizeIndex * 60);
       
-      const extraSpins = 4 + Math.floor(Math.random() * 3);
+      const extraSpins = 4;
       const finalRotation = currentRotation + extraSpins * 360 + targetAngle;
+      
+      console.log('prizeIndex:', prizeIndex, 'prize:', prizes[prizeIndex], 'targetAngle:', targetAngle);
       
       wheel.style.transform = `rotate(${finalRotation}deg)`;
       currentRotation = finalRotation;
