@@ -19,21 +19,19 @@
       justify-content: center;
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       font-family: 'Microsoft JhengHei', 'PingFang TC', sans-serif;
-      overflow: hidden;
     }
 
     h1 {
       color: #ffd700;
-      font-size: 2.5rem;
-      margin-bottom: 30px;
+      font-size: 2rem;
+      margin-bottom: 20px;
       text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-      letter-spacing: 3px;
     }
 
     .wheel-container {
       position: relative;
-      width: 380px;
-      height: 380px;
+      width: 350px;
+      height: 350px;
     }
 
     .wheel {
@@ -41,75 +39,75 @@
       height: 100%;
       border-radius: 50%;
       position: relative;
-      transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
-      box-shadow: 
-        0 0 30px rgba(255, 215, 0, 0.3),
-        inset 0 0 50px rgba(0, 0, 0, 0.3);
+      transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+      overflow: hidden;
     }
 
-    .wheel-bg {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: conic-gradient(
-        from -30deg,
-        #ff6b6b 0deg 60deg,
-        #4ecdc4 60deg 120deg,
-        #ffd93d 120deg 180deg,
-        #6bcb77 180deg 240deg,
-        #9b59b6 240deg 300deg,
-        #3498db 300deg 360deg
-      );
-      position: relative;
-    }
-
-    .wheel-text {
+    .segment {
       position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-    }
-
-    .wheel-text span {
-      position: absolute;
+      width: 50%;
+      height: 50%;
       left: 50%;
-      top: 15%;
-      transform: translateX(-50%) rotate(30deg);
+      top: 0;
+      transform-origin: 0% 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .segment::before {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-style: solid;
+    }
+
+    /* 每个扇形的样式 */
+    .segment-0 { transform: rotate(0deg); background: #ff6b6b; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+    .segment-1 { transform: rotate(60deg); background: #4ecdc4; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+    .segment-2 { transform: rotate(120deg); background: #ffd93d; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+    .segment-3 { transform: rotate(180deg); background: #6bcb77; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+    .segment-4 { transform: rotate(240deg); background: #9b59b6; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+    .segment-5 { transform: rotate(300deg); background: #3498db; clip-path: polygon(0 0, 100% 0, 100% 100%); }
+
+    .segment span {
+      position: absolute;
+      left: 35%;
+      top: 30%;
       color: white;
       font-weight: bold;
-      font-size: 1.1rem;
+      font-size: 1rem;
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
       white-space: nowrap;
+      transform: rotate(30deg);
     }
 
-    .wheel-text span:nth-child(1) { transform: translateX(-50%) rotate(30deg); }
-    .wheel-text span:nth-child(2) { transform: translateX(-50%) rotate(90deg); }
-    .wheel-text span:nth-child(3) { transform: translateX(-50%) rotate(150deg); }
-    .wheel-text span:nth-child(4) { transform: translateX(-50%) rotate(210deg); }
-    .wheel-text span:nth-child(5) { transform: translateX(-50%) rotate(270deg); }
-    .wheel-text span:nth-child(6) { transform: translateX(-50%) rotate(330deg); }
+    .segment-0 span { transform: rotate(30deg); left: 40%; top: 25%; }
+    .segment-1 span { transform: rotate(90deg); }
+    .segment-2 span { transform: rotate(150deg); }
+    .segment-3 span { transform: rotate(210deg); }
+    .segment-4 span { transform: rotate(270deg); }
+    .segment-5 span { transform: rotate(330deg); }
 
     .center-circle {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 80px;
-      height: 80px;
+      width: 70px;
+      height: 70px;
       background: linear-gradient(145deg, #ffd700, #ffaa00);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       font-weight: bold;
       color: #1a1a2e;
       cursor: pointer;
-      box-shadow: 
-        0 5px 20px rgba(0, 0, 0, 0.4),
-        inset 0 -3px 10px rgba(0, 0, 0, 0.2);
-      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
       z-index: 10;
     }
 
@@ -123,26 +121,26 @@
 
     .pointer {
       position: absolute;
-      top: -15px;
+      top: -10px;
       left: 50%;
       transform: translateX(-50%);
       width: 0;
       height: 0;
-      border-left: 20px solid transparent;
-      border-right: 20px solid transparent;
-      border-top: 40px solid #ff4444;
-      filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.4));
+      border-left: 18px solid transparent;
+      border-right: 18px solid transparent;
+      border-top: 35px solid #ff4444;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
       z-index: 20;
     }
 
     .result {
-      margin-top: 30px;
-      padding: 20px 40px;
+      margin-top: 25px;
+      padding: 15px 30px;
       background: rgba(255, 255, 255, 0.1);
-      border-radius: 15px;
+      border-radius: 12px;
       color: white;
-      font-size: 1.5rem;
-      min-height: 60px;
+      font-size: 1.3rem;
+      min-height: 50px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -159,6 +157,12 @@
     .result.winning {
       background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.3));
       border-color: rgba(255, 215, 0, 0.5);
+      animation: pulse 0.5s ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
     }
   </style>
 </head>
@@ -168,16 +172,13 @@
   <div class="wheel-container">
     <div class="pointer"></div>
     <div class="wheel" id="wheel">
-      <div class="wheel-bg">
-        <div class="wheel-text">
-          <span>謝謝參與</span>
-          <span>10 蚊</span>
-          <span>20 蚊</span>
-          <span>50 蚊</span>
-          <span>100 蚊</span>
-          <span>200 蚊</span>
-        </div>
-      </div>
+      <!-- 顺时针从顶部开始: 謝謝參與, 200蚊, 100蚊, 50蚊, 20蚊, 10蚊 -->
+      <div class="segment segment-0"><span>謝謝參與</span></div>
+      <div class="segment segment-1"><span>200 蚊</span></div>
+      <div class="segment segment-2"><span>100 蚊</span></div>
+      <div class="segment segment-3"><span>50 蚊</span></div>
+      <div class="segment segment-4"><span>20 蚊</span></div>
+      <div class="segment segment-5"><span>10 蚊</span></div>
     </div>
     <div class="center-circle" id="spinBtn">開始</div>
   </div>
@@ -185,8 +186,7 @@
   <div class="result" id="result"></div>
 
   <script>
-    // 奖项按顺时针排列：从顶部开始，逆时针读取
-    // 索引0在顶部(0度)，索引1在60度位置...
+    // 奖项顺序：从顶部顺时针
     const prizes = ['謝謝參與', '200 蚊', '100 蚊', '50 蚊', '20 蚊', '10 蚊'];
     const segmentAngle = 360 / prizes.length;
     
@@ -200,11 +200,11 @@
     function getRandomPrize() {
       const random = Math.random();
       if (random < 0.35) return 0;   // 35% 謝謝參與
-      if (random < 0.5) return 1;   // 15% 200蚊
-      if (random < 0.62) return 2;  // 12% 100蚊
-      if (random < 0.72) return 3;   // 10% 50蚊
-      if (random < 0.82) return 4;   // 10% 20蚊
-      return 5;                      // 18% 10蚊
+      if (random < 0.5) return 1;      // 15% 200蚊
+      if (random < 0.62) return 2;     // 12% 100蚊
+      if (random < 0.72) return 3;     // 10% 50蚊
+      if (random < 0.82) return 4;      // 10% 20蚊
+      return 5;                        // 18% 10蚊
     }
     
     function spinWheel() {
@@ -217,9 +217,8 @@
       // 随机选择奖项
       const prizeIndex = getRandomPrize();
       
-      // 计算旋转角度：让目标奖项转到顶部(0度)
-      // 转盘顺时针转，所以要让索引prizeIndex转到顶部，需要逆时针转 prizeIndex * 60 度
-      // 或者说顺时针转 360 - prizeIndex * 60 度
+      // 顺时针旋转让目标奖项到达顶部
+      // 如果奖项在索引i，需要旋转 360 - i*60 度
       const targetAngle = 360 - (prizeIndex * segmentAngle);
       
       // 额外旋转4-6圈
@@ -229,7 +228,7 @@
       wheel.style.transform = `rotate(${finalRotation}deg)`;
       currentRotation = finalRotation;
       
-      // 4秒后显示结果
+      // 4秒后显示结果 - 使用预设的奖项
       setTimeout(() => {
         const prize = prizes[prizeIndex];
         resultDiv.textContent = prize === '謝謝參與' 
