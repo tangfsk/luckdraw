@@ -193,8 +193,8 @@
       // 直接設一個目標角度 (0-359)
       const targetDegrees = Math.floor(Math.random() * 360);
       
-      // 用目標角度計獎品
-      const prizeIndex = Math.floor(targetDegrees / 60);
+      // 用目標角度計獎品 - 因為wheel順時針轉，指針位置等於反方向
+      const prizeIndex = Math.floor((360 - targetDegrees) / 60) % 6;
       
       // 計算最終旋轉: 4-6圈 + 目標角度
       const extraSpins = 4 + Math.floor(Math.random() * 3);
