@@ -191,10 +191,13 @@
       // 随机选择奖项
       const prizeIndex = Math.floor(Math.random() * 6);
       
-      // 计算旋转角度: 让扇形i到达顶部(0度)
-      // 扇形i的起始角度是i*60，需要转到0度
-      // 顺时针旋转 = 360 - i*60
-      const targetRotation = 360 - (prizeIndex * 60);
+      // 计算旋转角度
+      // 指针在顶部(270°/canvas角度)
+      // 扇形i的起始角度 = i*60 - 90°
+      // 要让扇形i的起始边缘对准指针: R + (i*60 - 90) = 270
+      // R = 360 - (i*60 - 90) = 450 - i*60
+      // 简化: R = (4-i) * 60 + 30
+      const targetRotation = (4 - prizeIndex) * 60 + 30;
       
       // 总旋转 = 当前 + 额外圈数 + 目标角度
       const extraSpins = 4 + Math.floor(Math.random() * 3);
