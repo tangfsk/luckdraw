@@ -35,7 +35,7 @@
       height: 100%;
       border-radius: 50%;
       position: relative;
-      transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1);
+      transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
       box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), inset 0 0 20px rgba(0,0,0,0.3);
       overflow: hidden;
       background: white;
@@ -124,7 +124,8 @@
   <div class="result" id="result"></div>
 
   <script>
-    // 扇形顺序(从顶部顺时针): 0=謝謝參與, 1=200蚊, 2=100蚊, 3=50蚊, 4=20蚊, 5=10蚊
+    // 扇形顺序(从顶部顺时针): 
+    // 0-60° = 謝謝參與, 60-120° = 200蚊, 120-180° = 100蚊...
     const prizes = ['謝謝參與', '200 蚊', '100 蚊', '50 蚊', '20 蚊', '10 蚊'];
     const colors = ['#ff6b6b', '#4ecdc4', '#ffd93d', '#6bcb77', '#9b59b6', '#3498db'];
     
@@ -134,7 +135,6 @@
     const centerY = 180;
     const radius = 170;
     
-    // 画轮盘 - 扇形i在角度i*60度
     function drawWheel() {
       ctx.clearRect(0, 0, 360, 360);
       
@@ -152,7 +152,6 @@
         ctx.lineWidth = 2;
         ctx.stroke();
         
-        // 文字
         const textAngle = (i * 60 + 30 - 90) * Math.PI / 180;
         const textRadius = radius * 0.65;
         const textX = centerX + textRadius * Math.cos(textAngle);
@@ -181,6 +180,15 @@
     let isSpinning = false;
     let currentRotation = 0;
     
+    function getPrizeIndex(rotation) {
+      // 归一化到0-360
+      const r = rotation % 360;
+      // 指针位置 = (360 - r) % 360 (因为wheel顺时针转)
+      const pointerPos = (360 - r) % 360;
+      // 扇形索引 = pointerPos / 60
+      return Math.floor(pointerPos / 60) % 6;
+    }
+    
     function spinWheel() {
       if (isSpinning) return;
       
@@ -188,22 +196,15 @@
       spinBtn.textContent = '轉緊...';
       resultDiv.classList.remove('show', 'winning');
       
-      // 随机选择奖项
-      const prizeIndex = Math.floor(Math.random() * 6);
-      
-      // 计算旋转角度
-      // 指针在顶部(270°/canvas角度)
-      // 扇形i的起始角度 = i*60 - 90°
-      // 要让扇形i的起始边缘对准指针: R + (i*60 - 90) = 270
-      // R = 360 - (i*60 - 90) = 450 - i*60
-      // 简化: R = (4-i) * 60 + 30
-      const targetRotation = (4 - prizeIndex) * 60 + 30;
-      
-      // 总旋转 = 当前 + 额外圈数 + 目标角度
+      // 生成随机旋转角度 (4-6圈 + 随机30度偏移，避免停在黑线上)
       const extraSpins = 4 + Math.floor(Math.random() * 3);
-      const finalRotation = currentRotation + extraSpins * 360 + targetRotation;
+      const randomOffset = 30 + Math.floor(Math.random() * 300); // 30-330度，避免边界
+      const finalRotation = currentRotation + extraSpins * 360 + randomOffset;
       
-      console.log('prize:', prizes[prizeIndex], 'targetRotation:', targetRotation, 'finalRotation:', finalRotation);
+      // 根据实际旋转角度计算奖项
+      const prizeIndex = getPrizeIndex(finalRotation);
+      
+      console.log('finalRotation:', finalRotation, 'prizeIndex:', prizeIndex, 'prize:', prizes[prizeIndex]);
       
       wheel.style.transform = `rotate(${finalRotation}deg)`;
       currentRotation = finalRotation;
